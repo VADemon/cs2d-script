@@ -1,8 +1,8 @@
 worldedit.edit = {}
 
-function worldedit.edit.settile(x, y, tile)
-	if tile(x, y, "frame") ~= tile then
-		parse("settile " .. x .. " " .. y .. " " ..tile)
+function worldedit.edit.settile(x, y, weTile)
+	if tile(x, y, "frame") ~= weTile then
+		parse("settile " .. x .. " " .. y .. " " .. weTile)
 		return true
 	else
 		return false
@@ -70,23 +70,52 @@ end
 
 --SET
 function worldedit.edit.set(id, tile, x1, y1, x2, y2)
-	--[[local stepX, stepY = 1, 1
-	if x1 > x2 then
-		stepX = -stepX
-	end
-	if y1 > y2 then
-		stepY = -stepY
-	end]]
 	local stepX, stepY = worldedit.edit.setStep(x1, y1, x2, y2)
+	local changedTileCount = 0
 	
 	for y = y1, y2, stepY do
 		for x = x1, x2, stepX do
-			worldedit.edit.settile(x, y, tile)
+			if worldedit.edit.settile(x, y, tile) then
+				changedTileCount = changedTileCount + 1
+			end
 		end
 	end
+	
+	return changedTileCount
 end
 
 --REPLACE
+function worldedit.edit.replace(id, fromTile, toTile, x1, y1, x2, y2)
+	local stepX, stepY = worldedit.edit.setStep(x1, y1, x2, y2)
+	local changedTileCount = 0
+	
+	for y = y1, y2, stepY do
+		for x = x1, x2, stepX do
+			if tile(x, y, "frame") == fromTile and worldedit.edit.settile(x, y, toTile) then
+				changedTileCount = changedTileCount + 1
+			end
+		end
+	end
+	
+	return changedTileCount
+end
+
+
+function worldedit.edit.replaceNonAir(id, toTile, x1, y1, x2, y2)
+	local stepX, stepY = worldedit.edit.setStep(x1, y1, x2, y2)
+	local changedTileCount = 0
+	
+	for y = y1, y2, stepY do
+		for x = x1, x2, stepX do
+			if tile(x, y, "frame") ~= 0 and worldedit.edit.settile(x, y, toTile) then
+				changedTileCount = changedTileCount + 1
+			end
+		end
+	end
+	
+	return changedTileCount
+end
+
 
 --OVERLAY |3D
 

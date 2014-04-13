@@ -1,6 +1,6 @@
 worldedit.config = {
 	debug = true,
 	silentLoading = false,
-	defaultLimit = 50
+	defaultLimit = 100
 }
 

@@ -143,14 +143,16 @@ end
 function worldedit.chat.validateTilePositionLimit(id, tile)
 	if worldedit.func.validateTile(tile) then
 		local pos, errorMessage = worldedit.func.checkPositionsSet(id)
+		print(pos)
 		
 		if pos then
 			local limit, oversize =  worldedit.func.validateLimit(id)
 			
 			if limit then
-				return true, tile, pos, limit
+				print("true and: " .. tile, pos, limit)
+				return true, tile, pos
 			else
-				return worldedit.errorMsg2(id, "Your selection exceeds your operation limit by ".. oversize .." tiles!", false)
+				return worldedit.errorMsg2(id, "Your selection exceeds your operation limit by ".. oversize .." tile(s)!", false)
 			end
 		else
 			return worldedit.errorMsg2(id, errorMessage, false)
@@ -160,8 +162,8 @@ function worldedit.chat.validateTilePositionLimit(id, tile)
 	end
 end
 
-function worldedit.chat.countChangedBlocks()
-
+function worldedit.chat.showChangedTiles(id, count)
+	worldedit.msg2(id, count .. " tile(s) have been changed")
 end
 
 

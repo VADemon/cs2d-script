@@ -3,14 +3,10 @@
 
 -- Sets max. editable block limit
 local function limit(id, args)
-	for k,v in pairs(args) do
-		msg(k .. v)
-	end
-	
 	local limit = math.floor(args[3])
 	if limit > 0 then
 		worldedit.edit.limit(id, limit)
-		worldedit.msg2(id, "Operation limit set to " .. limit .. " blocks")
+		worldedit.msg2(id, "Operation limit set to " .. limit .. " tile(s)")
 		
 		return true
 	end
@@ -28,6 +24,10 @@ worldedit.chat.addCommand("limit", "", limit)
 -- === SELECTION
 --
 
+-- !we pos 1 15 20
+-- !we pos 2 me
+-- !we pos 2 cur
+-- !we pos 1 pl 2
 local function pos(id, args)
 	local pos = tonumber(args[3]) -- 1 - top left | 2 - bottom right
 	local x, y = args[4], args[5] -- str/int x
@@ -58,14 +58,19 @@ local function pos(id, args)
 		worldedit.errorMsg2(id, "Cursor position is not implemented yet")
 		
 	else
-		if worldedit.func.validCoordinate(x, y) then
-			worldedit.edit.pos(id, pos, x, y)
-			
-			return true
+		local x, y = tonumber(x), tonumber(y)
+		
+		if x ~= nil and y ~= nil then
+			if worldedit.func.validateCoordinate(x, y) then
+				worldedit.edit.pos(id, pos, x, y)
+				
+				return true
+			else
+				return worldedit.errorMsg2(id, "Given location is not valid", false)
+			end
+		
 		else
-			worldedit.errorMsg2(id, "Given location is not valid")
-			
-			return false
+			return worldedit.errorMsg2(id, "Wrong command syntax, x and y must be numbers!")
 		end
 	end
 end
@@ -74,11 +79,17 @@ worldedit.chat.addCommand("pos", "setpos", pos)
 -- === REGION OPERATIONS
 --
 
+-- !we set 5
 local function set(id, args)
-	local state, tile, pos, limit = worldedit.chat.validateTilePositionLimit(id, tonumber(args[3]))
+	if tonumber(args[3]) == nil then return false end
+
+	
+	local state, tile, pos = worldedit.chat.validateTilePositionLimit(id, tonumber(args[3]))
 	
 	if state then
-		worldedit.edit.set(id, tile, pos.x1, pos.y1, pos.x2, pos.y2)
+		local changedTiles = worldedit.edit.set(id, tile, pos.x1, pos.y1, pos.x2, pos.y2)
+		
+		worldedit.chat.showChangedTiles(id, changedTiles)
 		
 		return true
 	else
@@ -87,9 +98,46 @@ local function set(id, args)
 end
 worldedit.chat.addCommand("set", "", set)
 
+
+-- !we replace 20
+-- !we replace 0 20
+local function replace(id, args)
+	if tonumber(args[3]) == nil then return false end
+	
+	
+	local state, fromTile, pos = worldedit.chat.validateTilePositionLimit(id, tonumber(args[3]))
+	local toTile = tonumber(args[4]) -- doesn't work if it's in the line above... >:/
+
+	if state then
+		
+		if toTile then
+			if worldedit.chat.validateTile(id, toTile) then
+				-- replace fromTile to toTile
+				local changedTiles = worldedit.edit.replace(id, fromTile, toTile, pos.x1, pos.y1, pos.x2, pos.y2)
+				
+				worldedit.chat.showChangedTiles(id, changedTiles)
+				
+				return true
+			end
+		else
+			-- replace non-Air to fromTile
+			local changedTiles = worldedit.edit.replaceNonAir(id, fromTile, pos.x1, pos.y1, pos.x2, pos.y2)
+			
+			worldedit.chat.showChangedTiles(id, changedTiles)
+			
+			return true
+		end
+	else
+		return false
+	end	
+end
+worldedit.chat.addCommand("replace", "", replace)
+
 --
 -- === 
 --
+
+
 --
 -- === 
 --

@@ -13,9 +13,10 @@ worldedit.files[4] = "edit.lua"
 worldedit.files[5] = "chat_processor.lua"
 worldedit.files[6] = "commands.lua"
 worldedit.files[7] = "data.lua"
-worldedit.files[8] = "imports.lua"
+worldedit.files[8] = "image.lua"
+worldedit.files[9] = "reqcld.lua"
+worldedit.files[10] = "imports.lua"
 
---worldedit.files[4] = ".lua"
 
 function worldedit.init()
 	print("Loading Worldedit v. " .. worldedit.version)
@@ -34,8 +35,3 @@ function worldedit.loadFiles()
 end
 
 worldedit.init()
-
---
-function test()
-
-end

@@ -55,8 +55,9 @@ local function pos(id, args)
 		
 		return true
 	elseif x == "cur" then -- set to cursor position
-		worldedit.errorMsg2(id, "Cursor position is not implemented yet")
+		reqcld2(id, 2, "", worldedit.reqcld.pos, pos)
 		
+		return true		
 	else
 		local x, y = tonumber(x), tonumber(y)
 		
@@ -132,6 +133,60 @@ local function replace(id, args)
 	end	
 end
 worldedit.chat.addCommand("replace", "", replace)
+
+
+local function walls(id, args)
+	if tonumber(args[3]) == nil then return false end
+	
+	
+	local state, toTile, pos = worldedit.chat.validateTilePositionLimit(id, tonumber(args[3]))
+	
+	if state and toTile then
+		local changedTiles = worldedit.edit.walls(id, toTile, pos.x1, pos.y1, pos.x2, pos.y2)
+		
+		worldedit.chat.showChangedTiles(id, changedTiles)
+		
+		return true
+	else
+		return false
+	end
+end
+worldedit.chat.addCommand("walls", "", walls)
+
+
+local function hollow(id, args)
+	if tonumber(args[3]) == nil then return false end
+	
+	
+	local state, toTile, pos = worldedit.chat.validateTilePositionLimit(id, tonumber(args[3]))
+	
+	if state and toTile then
+		local changedTiles = worldedit.edit.hollow(id, toTile, pos.x1, pos.y1, pos.x2, pos.y2)
+		
+		worldedit.chat.showChangedTiles(id, changedTiles)
+		
+		return true
+	else
+		return false
+	end
+end
+worldedit.chat.addCommand("hollow", "", hollow)
+
+
+local function regen(id)
+	local state, _, pos = worldedit.chat.validateTilePositionLimit(id, 0)
+	
+	if state then
+		local changedTiles = worldedit.edit.regen(id, pos.x1, pos.y1, pos.x2, pos.y2)
+		
+		worldedit.chat.showChangedTiles(id, changedTiles)
+		
+		return true
+	else
+		return false
+	end
+end
+worldedit.chat.addCommand("regen", "", regen)
 
 --
 -- === 

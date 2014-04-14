@@ -36,13 +36,6 @@ function worldedit.edit.pos(id, pos, x, y)
 	worldedit.data.player[ id ].pos["y" .. pos] = tonumber(y)
 	worldedit.msg2(id, (pos == 1 and "First" or "Second") .. " position set to (" .. x .. ", " .. y .. ") (" ..worldedit.func.calculateRegionSize(id) .. ")")
 end
---POS2#
-
---HPOS1#
-
---HPOS2#
-
---CHUNK
 
 --EXPAND
 
@@ -69,13 +62,13 @@ function worldedit.edit.setStep(x1, y1, x2, y2)
 end
 
 --SET
-function worldedit.edit.set(id, tile, x1, y1, x2, y2)
+function worldedit.edit.set(id, toTile, x1, y1, x2, y2)
 	local stepX, stepY = worldedit.edit.setStep(x1, y1, x2, y2)
 	local changedTileCount = 0
 	
 	for y = y1, y2, stepY do
 		for x = x1, x2, stepX do
-			if worldedit.edit.settile(x, y, tile) then
+			if worldedit.edit.settile(x, y, toTile) then
 				changedTileCount = changedTileCount + 1
 			end
 		end
@@ -120,16 +113,52 @@ end
 --OVERLAY |3D
 
 --WALLS
+function worldedit.edit.walls(id, toTile, x1, y1, x2, y2)
+	local stepX, stepY = worldedit.edit.setStep(x1, y1, x2, y2)
+	local changedTileCount = 0
+	
+	-- top wall
+	changedTileCount = worldedit.edit.set(id, toTile, x1, y1, x2, y1) + changedTileCount
+	-- bottom wall
+	changedTileCount = worldedit.edit.set(id, toTile, x1, y2, x2, y2) + changedTileCount
+	
+	-- left wall | +- stepY - no need to replace the corners again
+	changedTileCount = worldedit.edit.set(id, toTile, x1, y1 + stepY, x1, y2 - stepY) + changedTileCount
+	
+	-- right wall
+	changedTileCount = worldedit.edit.set(id, toTile, x2, y1 + stepY, x2, y2 - stepY) + changedTileCount
+	
+	return changedTileCount
+end
 
---OUTLINE
+--OUTLINE |3D, 2D version is WALLS
 
 --SMOOTH |3D
 
 --DEFORM
 
 --HOLLOW
+function worldedit.edit.hollow(id, toTile, x1, y1, x2, y2)
+	local stepX, stepY = worldedit.edit.setStep(x1, y1, x2, y2)
+	
+	return worldedit.edit.set(id, toTile, x1 + stepX, y1 + stepY, x2 - stepX, y2 - stepY)
+end
 
 --REGEN
+function worldedit.edit.regen(id, x1, y1, x2, y2)
+	local stepX, stepY = worldedit.edit.setStep(x1, y1, x2, y2)
+	local changedTileCount = 0
+	
+	for y = y1, y2, stepY do
+		for x = x1, x2, stepX do
+			if worldedit.edit.settile(x, y, tile(x, y, "originalframe")) then
+				changedTileCount = changedTileCount + 1
+			end
+		end
+	end
+	
+	return changedTileCount
+end
 
 --MOVE
 
@@ -180,7 +209,7 @@ end
 
 --TOGGLEPLACE >> TOGGLEPOS
 
---FILL |3D ?
+--FILL | 2D >> inside boundaries
 
 --FILLR |3D?
 

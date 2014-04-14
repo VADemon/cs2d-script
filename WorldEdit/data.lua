@@ -15,5 +15,8 @@ end
 
 -- Clears player data
 function worldedit.data.leave(id)
-	worldedit.data.player[id] = {}
+	-- clear HUD and IMAGES first
+	
+	
+	worldedit.data.player[id] = nil
 end

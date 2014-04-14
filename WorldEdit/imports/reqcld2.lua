@@ -1,9 +1,9 @@
-req_lcd = {}
-req_lcd.requests = {}
-
-function reqcld2(id,mode,func,parameter) --parameters is optional
+reqcld2_data = {}
+reqcld2_data.requests = {}
+-- VADemon > Updated 14.04.2014 to support reqcld optional parameters
+function reqcld2(id, mode, parameter, func, custom_parameter) -- custom_parameters is optional
 	if not (type(func) == "function") then
-		msg("©255000000error in reqcld2: MISSING ARGUMENT: callback function (reqcld2(id,mode,func[,parameter]))")
+		msg("©255000000error in reqcld2: MISSING ARGUMENT: callback function (reqcld2(id, mode, parameter,func[,custom parameter]))")
 		return 1
 	end
 	local temp = {}
@@ -11,19 +11,20 @@ function reqcld2(id,mode,func,parameter) --parameters is optional
 	temp.mode = mode
 	temp.func = func
 	temp.parameter = parameter
-	req_lcd.requests[#req_lcd.requests+1] = temp
+	temp.custom_parameter = custom_parameter
+	reqcld2_data.requests[#reqcld2_data.requests+1] = temp
 	reqcld(id,mode)
 end
 
-addhook("clientdata","req_lcd.clientdata")
-function req_lcd.clientdata(id,mode,x,y)
+addhook("clientdata","reqcld2_data.clientdata")
+function reqcld2_data.clientdata(id,mode,x,y)
 	i = 0
-	while (i < #req_lcd.requests) do
+	while (i < #reqcld2_data.requests) do
 		i = i + 1
-		if (id == req_lcd.requests[i].id) and (mode == req_lcd.requests[i].mode) then
-			req_lcd.requests[i].func(id,x,y,req_lcd.requests[i].parameter)
-			req_lcd.requests[i] = req_lcd.requests[#req_lcd.requests]
-			req_lcd.requests[#req_lcd.requests] = nil
+		if (id == reqcld2_data.requests[i].id) and (mode == reqcld2_data.requests[i].mode) then
+			reqcld2_data.requests[i].func(id,x,y,reqcld2_data.requests[i].custom_parameter)
+			reqcld2_data.requests[i] = reqcld2_data.requests[#reqcld2_data.requests]
+			reqcld2_data.requests[#reqcld2_data.requests] = nil
 			break
 		end
 	end

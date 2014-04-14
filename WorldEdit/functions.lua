@@ -38,11 +38,11 @@ end
 -- === MATH FUNCTIONS
 
 function worldedit.func.pixelToTile(px)
-	return math.ceil(px / 32)
+	return math.ceil(px / 32) - 1
 end
 
 function worldedit.func.tileToPixel(tile)
-	return (tile * 32) + 16
+	return ((tile - 1) * 32) + 16
 end
 
 function worldedit.func.calculateRegionSize(id)
@@ -57,7 +57,13 @@ function worldedit.func.calculateRegionSize(id)
 	end
 end
 
-
+function worldedit.func.orEquals(a, b, compareWith)
+	if a == compareWith or b == compareWith then
+		return true
+	else
+		return false
+	end
+end
 
 
 -- === VALIDATING FUNCTIONS
@@ -65,7 +71,7 @@ end
 -- Checks whether coordinates are valid
 function worldedit.func.validateCoordinate(x, y)
 	x, y = tonumber(x), tonumber(y)
-	return (x > 0 and x < tonumber(map("xsize"))) and (y > 0 and y < tonumber(map("ysize")))
+	return (x >= 0 and x < tonumber(map("xsize"))) and (y >= 0 and y < tonumber(map("ysize")))
 end
 
 function worldedit.func.validateCoordinates(x, y, x2, y2)
@@ -124,6 +130,14 @@ function worldedit.func.checkVar(var, errorMsg, id)
 	return var and true
 end
 
+function worldedit.func.validateStringDirection( str )
+	if str == "north" or str == "up" or str == "south" or str == "down" or str == "west" or str == "left" or str == "east" or str == "right" then
+		return true
+	else
+		return false
+	end
+end
+
 
 
 
@@ -143,13 +157,11 @@ end
 function worldedit.chat.validateTilePositionLimit(id, tile)
 	if worldedit.func.validateTile(tile) then
 		local pos, errorMessage = worldedit.func.checkPositionsSet(id)
-		print(pos)
 		
 		if pos then
 			local limit, oversize =  worldedit.func.validateLimit(id)
 			
 			if limit then
-				print("true and: " .. tile, pos, limit)
 				return true, tile, pos
 			else
 				return worldedit.errorMsg2(id, "Your selection exceeds your operation limit by ".. oversize .." tile(s)!", false)
@@ -176,7 +188,7 @@ function worldedit.func.callJoinHookForCurrentPlayers()
 	end
 end
 
--- Returns table with separated values
+-- Returns table with separated values @ http://stackoverflow.com/a/7615129
 function worldedit.func.split(inputstr, sep)
         if sep == nil then
                 sep = "%s"
@@ -187,4 +199,68 @@ function worldedit.func.split(inputstr, sep)
                 i = i + 1
         end
         return t
+end
+
+
+function worldedit.func.stringToDirection( str )
+	local a, b = unpack(worldedit.func.split(string.lower(str), ","))
+	local orEquals = worldedit.func.orEquals
+	local xOffset, yOffset = 0, 0
+	local errorMsg
+	
+	if a then
+		if worldedit.func.validateStringDirection(a) == false then
+			return 0, 0, "'" .. a .. "' is an invalid direction!"
+		end
+	else
+		return 0, 0, "No direction specified!"
+	end
+	
+	if not b then
+		b = ""
+	elseif worldedit.func.validateStringDirection(b) == false then
+		return 0, 0, "'" .. b .. "' is an invalid direction!"
+	end
+	
+	
+	
+	if orEquals(a, b, "north") or orEquals(a, b, "up") then
+		yOffset = -1
+	elseif orEquals(a, b, "south") or orEquals(a, b, "down") then
+		yOffset = 1
+	end
+	if orEquals(a, b, "west") or orEquals(a, b, "left") then
+		xOffset = -1
+	elseif orEquals(a, b, "east") or orEquals(a, b, "right") then
+		xOffset = 1
+	end
+	
+	return xOffset, yOffset, errorMsg
+end
+
+-- Only to be used for user output
+function worldedit.func.directionToString(xOffset, yOffset)
+	local xString, yString = "", ""
+	
+	if xOffset == 1 then
+		xString = "east (right)"
+	elseif xOffset == 0 then
+		xString = "none"
+	elseif xOffset == -1 then
+		xString = "west (left)"
+	else
+		xString = "*error in dirToStr*"
+	end
+	
+	if yOffset == -1 then
+		yString = "north (up)"
+	elseif yOffset == 0 then
+		yString = "none"
+	elseif yOffset == 1 then
+		yString = "south (down)"
+	else
+		yString = "*error in dirToStr*"
+	end
+	
+	return xString, yString
 end

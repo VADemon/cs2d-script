@@ -1,6 +1,3 @@
--- 255 85 255
-
-
 -- Sets max. editable block limit
 local function limit(id, args)
 	local limit = math.floor(args[3])
@@ -76,6 +73,87 @@ local function pos(id, args)
 	end
 end
 worldedit.chat.addCommand("pos", "setpos", pos)
+
+
+local function expand(id, args)
+	local amount, directionStr = tonumber(args[3]), args[4]
+
+	if worldedit.chat.selectionExists(id) and worldedit.chat.validateArgument(id, amount, "number", 3) then
+
+		if amount ~= 0 then
+
+			if directionStr then
+			
+				local xOffset, yOffset, errorMessage = worldedit.func.stringToDirection( directionStr )
+				
+				if errorMessage then
+				
+					return worldedit.errorMsg2(id, "Wrong command syntax, direction given is invalid")			
+				else
+					worldedit.edit.expand(id, amount, xOffset, yOffset)
+					
+					return true
+				end
+			else
+				-- calculate player's aim direction
+				worldedit.edit.expand(id, amount, worldedit.func.degreeToDirection( player(id, "rot") ))
+				
+				return true
+			end
+		else
+			return worldedit.errorMsg2("Amount cannot equal 0!", false)
+		end
+	else
+		return false
+	end
+end
+worldedit.chat.addCommand("expand", "", expand)
+
+local function contract(id, args)
+	if worldedit.chat.validateArgument(id, tonumber(args[3]), "number", 3) then
+		args[3] = -tonumber(args[3])
+		
+		return worldedit.chat.commandList[ "expand" ](id, args) -- shouldnt use this hack though
+	else
+		return false
+	end
+end
+worldedit.chat.addCommand("contract", "", contract)
+
+local function shift(id, args)
+	local amount, directionStr = tonumber(args[3]), args[4]
+
+	if worldedit.chat.selectionExists(id) and worldedit.chat.validateArgument(id, amount, "number", 3) then
+
+		if amount ~= 0 then
+
+			if directionStr then
+			
+				local xOffset, yOffset, errorMessage = worldedit.func.stringToDirection( directionStr )
+				
+				if errorMessage then
+				
+					return worldedit.errorMsg2(id, "Wrong command syntax, direction given is invalid")			
+				else
+					worldedit.edit.shift(id, amount, xOffset, yOffset)
+					
+					return true
+				end
+			else
+				-- calculate player's aim direction
+				worldedit.edit.shift(id, amount, worldedit.func.degreeToDirection( player(id, "rot") ))
+				
+				return true
+			end
+		else
+			return worldedit.errorMsg2("Amount cannot equal 0!", false)
+		end
+	else
+		return false
+	end
+end
+worldedit.chat.addCommand("shift", "", shift)
+
 --
 -- === REGION OPERATIONS
 --
@@ -134,7 +212,7 @@ local function replace(id, args)
 end
 worldedit.chat.addCommand("replace", "", replace)
 
-
+-- !we walls 7
 local function walls(id, args)
 	if tonumber(args[3]) == nil then return false end
 	
@@ -155,7 +233,7 @@ worldedit.chat.addCommand("walls", "", walls)
 
 
 local function hollow(id, args)
-	if tonumber(args[3]) == nil then return false end
+	if tonumber(args[3]) == nil then args[3] = 0 end
 	
 	
 	local state, toTile, pos = worldedit.chat.validateTilePositionLimit(id, tonumber(args[3]))
@@ -188,6 +266,7 @@ local function regen(id)
 end
 worldedit.chat.addCommand("regen", "", regen)
 
+
 --
 -- === 
 --
@@ -206,8 +285,16 @@ worldedit.chat.addCommand("regen", "", regen)
 -- === 
 --
 --
--- === 
+-- === DEBUG INFORMATION
 --
+local function coords(id)
+	local round = worldedit.func.round
+	local x, y, tilex, tiley = round(player(id, "x"), 2), round(player(id,"y"), 2), player(id,"tilex"), player(id,"tiley")
+	worldedit.msg2(id, "Pixel: x" .. x .. ",y" .. y .. "    Tile: x" .. tilex .. ",y" .. tiley)
+	
+	return true
+end
+worldedit.chat.addCommand("coords", "c", coords)
 --
 -- === GENERAL COMMANDS
 --

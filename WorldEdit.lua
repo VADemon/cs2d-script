@@ -2,7 +2,7 @@ print("Loading WorldEdit Core")
 worldedit = {}
 
 worldedit.folder = "sys\\lua\\autorun\\WorldEdit\\"
-worldedit.version = "InDev"
+worldedit.version = "15.04.2014"
 
 worldedit.files = {}
 

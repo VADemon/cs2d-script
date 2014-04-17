@@ -7,11 +7,13 @@ worldedit.chat.commandName2 = "!we"
 
 function worldedit.chat.processor(id, txt)
 	if txt:sub(1, 1) ~= "!" then
-		return false
+		return 0
 	end
 	-- === --
 	
-	local firstSpace = string.find(txt, " ") - 1
+	local firstSpace = string.find(txt, " ")
+		
+	if firstSpace then firstSpace = firstSpace - 1 else return 0 end
 
 	-- WE Commands?
 	if txt:sub(1, firstSpace) == worldedit.chat.commandName or txt:sub(1, firstSpace) == worldedit.chat.commandName2 then

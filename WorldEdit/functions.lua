@@ -1,5 +1,6 @@
 worldedit.func = {}
 if not worldedit.chat then worldedit.chat = {} end
+if not worldedit.image then worldedit.image = {} end
 
 
 
@@ -37,12 +38,25 @@ end
 
 -- === MATH FUNCTIONS
 
+-- http://lua-users.org/wiki/SimpleRound
+-- Igor Skoric (i.skoric@student.tugraz.at)
+-- param: num-ber to round, (optional) idp - up to which decimal place to round
+function worldedit.func.round(num, idp)
+    local mult = 10^(idp or 0)
+    if num >= 0 then return math.floor(num * mult + 0.5) / mult
+    else return math.ceil(num * mult - 0.5) / mult end
+end
+
 function worldedit.func.pixelToTile(px)
 	return math.ceil(px / 32) - 1
 end
 
 function worldedit.func.tileToPixel(tile)
-	return ((tile - 1) * 32) + 16
+	return (tile * 32) + 16
+end
+
+function worldedit.func.fullTileToPixel(tile)
+	return (tile + 1) * 32
 end
 
 function worldedit.func.calculateRegionSize(id)
@@ -63,6 +77,113 @@ function worldedit.func.orEquals(a, b, compareWith)
 	else
 		return false
 	end
+end
+
+-- returns xOffset, yOffset
+function worldedit.func.degreeToDirection( degree )
+	if degree > 180 or degree < -180 then
+		degree = degree % 180
+	end
+	
+	return unpack(worldedit.data.degreeToDirection[ worldedit.func.round( degree / 45 , 0) ])
+end
+
+
+
+-- === DIRECTION FUNCTIONS
+function worldedit.func.stringToDirection( str )
+	local a, b = unpack(worldedit.func.split(string.lower(str), ","))
+	local orEquals = worldedit.func.orEquals
+	local xOffset, yOffset = 0, 0
+	local errorMsg
+	
+	if a then
+		if worldedit.func.validateStringDirection(a) == false then
+			return 0, 0, "'" .. a .. "' is an invalid direction!"
+		end
+	else
+		return 0, 0, "No direction specified!"
+	end
+	
+	if not b then
+		b = ""
+	elseif worldedit.func.validateStringDirection(b) == false then
+		return 0, 0, "'" .. b .. "' is an invalid direction!"
+	end
+	
+	
+	
+	if orEquals(a, b, "north") or orEquals(a, b, "up") then
+		yOffset = -1
+	elseif orEquals(a, b, "south") or orEquals(a, b, "down") then
+		yOffset = 1
+	end
+	if orEquals(a, b, "west") or orEquals(a, b, "left") then
+		xOffset = -1
+	elseif orEquals(a, b, "east") or orEquals(a, b, "right") then
+		xOffset = 1
+	end
+	
+	return xOffset, yOffset, errorMsg
+end
+
+-- Only to be used for user output
+-- yString is to be showed BEFORE xString
+function worldedit.func.directionToString(xOffset, yOffset)
+	local xString, yString = "", ""
+	
+	if xOffset == 1 then
+		xString = "east (right)"
+	elseif xOffset == 0 then
+		xString = "none"
+	elseif xOffset == -1 then
+		xString = "west (left)"
+	else
+		xString = "*error in dirToStr*"
+	end
+	
+	if yOffset == -1 then
+		yString = "north (up)"
+	elseif yOffset == 0 then
+		yString = "none"
+	elseif yOffset == 1 then
+		yString = "south (down)"
+	else
+		yString = "*error in dirToStr*"
+	end
+	
+	return xString, yString
+end
+
+
+
+
+
+-- === IMAGE FUNCTIONS
+
+function worldedit.image.size(imageID, x, y, origX, origY)
+	local getScale = worldedit.func.getScaleFromPixelSize
+	imagescale(imageID, getScale(origX, x), getScale(origY, y))
+end
+
+-- if you want an image with imgSize (px) to have targetSize (px)
+-- returns a scale to use 
+function worldedit.func.getScaleFromPixelSize(imgSize, targetSize)
+	return targetSize / imgSize
+end
+
+-- Returns the size in pixels with current scale
+function worldedit.func.getPixelSizeFromScale(imgSize, scale)
+	return imgSize * scale
+end
+
+-- NOT USED, TO BE REMOVED
+function worldedit.image.offsetHalf(size, step)
+	return worldedit.func.round(size / step / 2)
+end
+
+function worldedit.image.align(x, size, align)
+	return worldedit.func.round( x + (size / 2) * align )
 end
 
 
@@ -119,6 +240,7 @@ function worldedit.func.validateLimit(id)
 end
 
 -- Checks variable against nil, returns boolean; sends message (to ID) if provided
+-- DEPRECATED, USE worldedit.chat.validateArgument INSTEAD
 function worldedit.func.checkVar(var, errorMsg, id)
 	if (not var) and errorMsg then -- var is false and errorMsg submitted?
 		if id then
@@ -142,6 +264,17 @@ end
 
 
 -- === VALIDATING/MISC COMMANDS WITH PLAYER FEEDBACK
+-- Checks argument _arg_ against its type and _argType_
+-- returns true or false + user errormessage about missing argument #_argNum_
+function worldedit.chat.validateArgument(id, arg, argType, argNum)
+	if type(arg) == argType then
+		return true
+	elseif argNum then
+		return worldedit.errorMsg2(id, "Wrong command syntax, argument #" .. argNum .." is incorrect", false)
+	else
+		return worldedit.errorMsg2(id, "Wrong command syntax, an argument is incorrect", false)
+	end
+end
 
 -- Kinda manual one for functions with >1 tiles
 function worldedit.chat.validateTile(id, tile)
@@ -178,6 +311,60 @@ function worldedit.chat.showChangedTiles(id, count)
 	worldedit.msg2(id, count .. " tile(s) have been changed")
 end
 
+function worldedit.chat.selectionExists(id)
+	local pos = worldedit.data.player[ id ].pos
+	
+	if pos.x1 and pos.y1 then
+		if pos.x2 and pos.y2 then
+			return true
+		else
+			return worldedit.errorMsg2(id, "You must set the 2nd position to complete a selection!", false)
+		end
+	elseif pos.x2 and pos.y2 then
+		return worldedit.errorMsg2(id, "You must set the 1st position to complete a selection!", false)
+	else
+		return worldedit.errorMsg2(id, "You must select a region first!", false)
+	end
+end
+
+
+
+
+
+-- === RELOAD FUNCTIONS (!we reload or endround, etc)
+function worldedit.func.freeimages_selection( id )
+	local selection = worldedit.data.player[ id ].image.selection
+	
+	if selection.x1 then 
+		freeimage(selection.x1); freeimage(selection.y1);
+		selection.x1 = nil; selection.y1 = nil
+	end
+
+	if selection.x2 then 
+		freeimage(selection.x2); freeimage(selection.y2)
+		selection.x2 = nil; selection.y2 = nil
+	end
+
+	if selection.c1 then freeimage(selection.c1); selection.c1 = nil end
+	if selection.c2 then freeimage(selection.c2); selection.c2 = nil end
+	
+	worldedit.data.player[ id ].image.selection = selection
+end
+
+function worldedit.func.freeimages() -- removes images and metadata
+	local data = worldedit.data
+	for id = 1, 32 do -- not doing just for existing players, ID 0 to be considered
+		if data.player[ id ] then
+		
+			worldedit.func.freeimages_selection( id )
+			
+		end
+	end
+end
+
+
+
+
 
 -- === MISC
 
@@ -199,68 +386,4 @@ function worldedit.func.split(inputstr, sep)
                 i = i + 1
         end
         return t
-end
-
-
-function worldedit.func.stringToDirection( str )
-	local a, b = unpack(worldedit.func.split(string.lower(str), ","))
-	local orEquals = worldedit.func.orEquals
-	local xOffset, yOffset = 0, 0
-	local errorMsg
-	
-	if a then
-		if worldedit.func.validateStringDirection(a) == false then
-			return 0, 0, "'" .. a .. "' is an invalid direction!"
-		end
-	else
-		return 0, 0, "No direction specified!"
-	end
-	
-	if not b then
-		b = ""
-	elseif worldedit.func.validateStringDirection(b) == false then
-		return 0, 0, "'" .. b .. "' is an invalid direction!"
-	end
-	
-	
-	
-	if orEquals(a, b, "north") or orEquals(a, b, "up") then
-		yOffset = -1
-	elseif orEquals(a, b, "south") or orEquals(a, b, "down") then
-		yOffset = 1
-	end
-	if orEquals(a, b, "west") or orEquals(a, b, "left") then
-		xOffset = -1
-	elseif orEquals(a, b, "east") or orEquals(a, b, "right") then
-		xOffset = 1
-	end
-	
-	return xOffset, yOffset, errorMsg
-end
-
--- Only to be used for user output
-function worldedit.func.directionToString(xOffset, yOffset)
-	local xString, yString = "", ""
-	
-	if xOffset == 1 then
-		xString = "east (right)"
-	elseif xOffset == 0 then
-		xString = "none"
-	elseif xOffset == -1 then
-		xString = "west (left)"
-	else
-		xString = "*error in dirToStr*"
-	end
-	
-	if yOffset == -1 then
-		yString = "north (up)"
-	elseif yOffset == 0 then
-		yString = "none"
-	elseif yOffset == 1 then
-		yString = "south (down)"
-	else
-		yString = "*error in dirToStr*"
-	end
-	
-	return xString, yString
 end

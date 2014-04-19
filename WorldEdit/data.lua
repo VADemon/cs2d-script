@@ -4,17 +4,17 @@ worldedit.data.player = {}
 
 worldedit.data.degreeToDirection = {
 	-- straight forward
-	[-4] = {0, 1},
-	[-3] = {-1, -1},
-	[-2] = {-1, 0},
-	[-1] = {-1, -1},
+	[-4] = {0, 1}, -- down
+	[-3] = {-1, 1}, -- down-left
+	[-2] = {-1, 0}, -- left
+	[-1] = {-1, -1}, -- up-left
 	
-	[0] = {0, -1},
+	[0] = {0, -1}, -- up
 	
-	[1] = {1, -1},
-	[2] = {1, 0},
-	[3] = {1, 1},
-	[4] = {0, 1}
+	[1] = {1, -1}, -- up-right
+	[2] = {1, 0}, -- right
+	[3] = {1, 1}, -- down-right
+	[4] = {0, 1} -- down
 }
 
 -- Sets default values for joining player

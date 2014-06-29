@@ -1,3 +1,10 @@
+Version 0.4
+[ADDED] !we unstuck | by MikuAuahDark (user:53360)
+[FIXED] Now explicitly removing images created by players when they leave
+
+Version 0.3a
+[FIXED] worldedit.data.degreeToDirection offsets, down-left was recognized as up-left
+
 Version 0.3 - 17.04.2014
 [ADDED] Graphical region selection (uuuh, fancy!)
 [ADDED] !we expand <amount> [direction] - enlarges the selection in [direction]

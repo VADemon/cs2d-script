@@ -96,8 +96,8 @@ function resource_export.os.windows(os_type, targetFolder)
 	local folderList, fileList = resource_export.captureConsoleOutput(os_type, targetFolder)
 	targetFolder = "mapexport_" .. targetFolder
 	
-	print("Starting copying")
-	os.execute('rmdir /S /Q "mapexport_' .. targetFolder .. '"')	-- remove the directory before exporting
+	print("Starting to copy files:")
+	os.execute('rmdir /S /Q "' .. targetFolder .. '"')	-- remove the directory before exporting
 	os.execute('mkdir "' .. targetFolder .. '"')
 	
 	
@@ -113,7 +113,7 @@ function resource_export.os.windows(os_type, targetFolder)
 	os.execute('copy "maps\\' .. map("name") .. '.map" "' .. targetFolder .. '\\maps\\' .. map("name") .. '.map"')
 	
 	os.execute = _EXECUTE
-	print("Done copying")
+	print("Finished copying!")
 end
 
 
@@ -130,8 +130,8 @@ function resource_export.os.linux(os_type, targetFolder)
 	local folderList, fileList = resource_export.captureConsoleOutput(os_type, targetFolder)
 	targetFolder = "mapexport_" .. targetFolder
 	
-	print("Starting copying")
-	os.execute('rm -rf "mapexport_' .. targetFolder .. '"')	-- remove the directory before exporting
+	print("Starting to copy files:")
+	os.execute('rm -rf "' .. targetFolder .. '"')	-- remove the directory before exporting
 	os.execute('mkdir "' .. targetFolder .. '"')
 	
 	
@@ -147,7 +147,7 @@ function resource_export.os.linux(os_type, targetFolder)
 	os.execute('cp "maps/' .. map("name") .. '.map" "' .. targetFolder .. '/maps/' .. map("name") .. '.map"')
 	
 	os.execute = _EXECUTE
-	print("Done copying")
+	print("Finished copying!")
 end
 
 resource_export.os.mac = resource_export.os.linux

@@ -53,11 +53,22 @@ function resource_export.captureConsoleOutput(os_type, targetFolder)
 	local data = resource_export.data
 	resource_export.data = ""
 	local folderList, fileList = {}, {}
+	local separator = os_type == "windows" and "\\" or "/"	-- use \ if it's windows, else /
+	
+	--	MANUALLY ADD THE .map and MAP's .lua
+	folderList[ "maps" .. separator ] = false	-- create "maps\" folder
+	fileList[1] = 'maps/' .. map("name") .. '.map'
+	fileList[2] = 'maps/' .. map("name") .. '.lua'
+	
+	if os_type == "windows" then
+		fileList[1] = fileList[1]:gsub("/", "\\")
+		fileList[2] = fileList[2]:gsub("/", "\\")
+	end
 	
 	
 	for word in data:gmatch("%).-/.-\n") do
 		if os_type == "windows" then
-			folderList[ word:match("%): (.+/)"):gsub("/", "\\") ] = false
+			folderList[ word:match("%): (.+/)"):gsub("/", "\\") ] = false	-- use [key]=value structure because we don't need multiple folder entries
 		else
 			folderList[ word:match("%): (.+/)") ] = false
 		end
@@ -71,7 +82,7 @@ function resource_export.captureConsoleOutput(os_type, targetFolder)
 		end
 	end
 		
---[[	print("Printing captured data")
+	--[[print("©200200000Printing captured data")
 	for k,v in pairs(folderList) do
 		print("folder", k, v)
 	end
@@ -93,6 +104,7 @@ function resource_export.os.windows(os_type, targetFolder)
 	end
 	----
 	
+	local folderCount = 0	-- count folders for later output
 	local folderList, fileList = resource_export.captureConsoleOutput(os_type, targetFolder)
 	targetFolder = "mapexport_" .. targetFolder
 	
@@ -103,17 +115,17 @@ function resource_export.os.windows(os_type, targetFolder)
 	
 	for k,v in pairs(folderList) do
 		os.execute('mkdir "' .. targetFolder .. "\\" .. k .. '"')
+		folderCount = folderCount + 1
 	end
 	
 	for k,v in pairs(fileList) do
 		os.execute('copy "'.. v ..'" "'.. targetFolder .. "\\" .. v .. '"')
 	end
 	
-	os.execute('mkdir "' .. targetFolder .. '\\maps\\"')
-	os.execute('copy "maps\\' .. map("name") .. '.map" "' .. targetFolder .. '\\maps\\' .. map("name") .. '.map"')
 	
 	os.execute = _EXECUTE
-	print("Finished copying!")
+	print("©200200000Finished copying!")
+	print("©200200000Copied a total of " .. folderCount .. " Folder(s) and " .. #fileList .. " File(s)!")
 end
 
 
@@ -127,6 +139,7 @@ function resource_export.os.linux(os_type, targetFolder)
 	end
 	----
 	
+	local folderCount = 0	-- count folders for later output
 	local folderList, fileList = resource_export.captureConsoleOutput(os_type, targetFolder)
 	targetFolder = "mapexport_" .. targetFolder
 	
@@ -137,17 +150,17 @@ function resource_export.os.linux(os_type, targetFolder)
 	
 	for k,v in pairs(folderList) do
 		os.execute('mkdir "' .. targetFolder .. "/" .. k .. '"')
+		folderCount = folderCount + 1
 	end
 	
 	for k,v in pairs(fileList) do
 		os.execute('cp "'.. v ..'" "'.. targetFolder .. "/" .. v .. '"')
 	end
 	
-	os.execute('mkdir "' .. targetFolder .. '/maps/"')
-	os.execute('cp "maps/' .. map("name") .. '.map" "' .. targetFolder .. '/maps/' .. map("name") .. '.map"')
 	
 	os.execute = _EXECUTE
-	print("Finished copying!")
+	print("©200200000Finished copying!")
+	print("©200200000Copied a total of " .. folderCount .. " Folder(s) and " .. #fileList .. " File(s)!")
 end
 
 resource_export.os.mac = resource_export.os.linux

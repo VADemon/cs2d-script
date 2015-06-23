@@ -18,7 +18,6 @@ function resource_export.onParse(txt)
 			
 		elseif os_version == "linux" or os_version == "unix" or os.getenv("OSTYPE") == "linux-gnu" or os.getenv("OSTYPE") == "FreeBSD" then
 			
-			print("©255100100Mapexport was not tested under LINUX!")
 			os_type = "linux"
 			
 		elseif os_version == "mac" or os_version == "macos" or os_version == "os x" or os.getenv("OSTYPE") == "darwin"  then
@@ -112,11 +111,10 @@ function resource_export.os.windows(os_type, targetFolder)
 	
 	print("Starting to copy files:")
 	os.execute('rmdir /S /Q "' .. targetFolder .. '"')	-- remove the directory before exporting
-	os.execute('mkdir "' .. targetFolder .. '"')
 	
 	
 	for k,v in pairs(folderList) do
-		os.execute('mkdir "' .. targetFolder .. "\\" .. k .. '"')
+		os.execute('mkdir "' .. targetFolder .. "\\" .. k .. '"')	-- windows' mkdir automatically creates parent dirs
 		folderCount = folderCount + 1
 	end
 	
@@ -147,11 +145,10 @@ function resource_export.os.linux(os_type, targetFolder)
 	
 	print("Starting to copy files:")
 	os.execute('rm -rf "' .. targetFolder .. '"')	-- remove the directory before exporting
-	os.execute('mkdir "' .. targetFolder .. '"')
 	
 	
 	for k,v in pairs(folderList) do
-		os.execute('mkdir "' .. targetFolder .. "/" .. k .. '"')
+		os.execute('mkdir -p "' .. targetFolder .. "/" .. k .. '"')
 		folderCount = folderCount + 1
 	end
 	

@@ -59,10 +59,12 @@ function resource_export.captureConsoleOutput(os_type, targetFolder)
 	folderList[ "maps" .. separator ] = false	-- create "maps\" folder
 	fileList[1] = 'maps/' .. map("name") .. '.map'
 	fileList[2] = 'maps/' .. map("name") .. '.lua'
+	fileList[3] = 'maps/' .. map("name") .. '.txt'
 	
 	if os_type == "windows" then
 		fileList[1] = fileList[1]:gsub("/", "\\")
 		fileList[2] = fileList[2]:gsub("/", "\\")
+		fileList[3] = fileList[3]:gsub("/", "\\")
 	end
 	
 	

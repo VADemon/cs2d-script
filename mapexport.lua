@@ -1,10 +1,10 @@
-addhook("parse", "resource_export.onParse")
+addhook("parse", "mapexport.onParse")
 
-resource_export = {}
-resource_export.os = {}
-resource_export.data = ""
+mapexport = {}
+mapexport.os = {}
+mapexport.data = ""
 
-function resource_export.onParse(txt)
+function mapexport.onParse(txt)
 	txt = txt:lower()
 	local os_type
 	
@@ -33,24 +33,24 @@ function resource_export.onParse(txt)
 		end
 		
 		print("©100255100Exporting resources under " .. os_type)
-		resource_export.os[os_type]( os_type, map("name") )
+		mapexport.os[os_type]( os_type, map("name") )
 		
 		--print("Returning 2!")
 		return 2
 	end
 end
 
-function resource_export.onLog(text)
-	resource_export.data = resource_export.data .. text .. "\n"
+function mapexport.onLog(text)
+	mapexport.data = mapexport.data .. text .. "\n"
 end
 
-function resource_export.captureConsoleOutput(os_type, targetFolder)
-	addhook("log", "resource_export.onLog")
+function mapexport.captureConsoleOutput(os_type, targetFolder)
+	addhook("log", "mapexport.onLog")
 	parse("resources")
-	freehook("log", "resource_export.onLog")
+	freehook("log", "mapexport.onLog")
 	
-	local data = resource_export.data
-	resource_export.data = ""
+	local data = mapexport.data
+	mapexport.data = ""
 	local folderList, fileList = {}, {}
 	local separator = os_type == "windows" and "\\" or "/"	-- use \ if it's windows, else /
 	
@@ -95,7 +95,7 @@ function resource_export.captureConsoleOutput(os_type, targetFolder)
 	return folderList, fileList
 end
 
-function resource_export.os.windows(os_type, targetFolder)
+function mapexport.os.windows(os_type, targetFolder)
 
 	local _EXECUTE = os.execute
 	
@@ -106,7 +106,7 @@ function resource_export.os.windows(os_type, targetFolder)
 	----
 	
 	local folderCount = 0	-- count folders for later output
-	local folderList, fileList = resource_export.captureConsoleOutput(os_type, targetFolder)
+	local folderList, fileList = mapexport.captureConsoleOutput(os_type, targetFolder)
 	targetFolder = "mapexport_" .. targetFolder
 	
 	print("Starting to copy files:")
@@ -129,7 +129,7 @@ function resource_export.os.windows(os_type, targetFolder)
 end
 
 
-function resource_export.os.linux(os_type, targetFolder)
+function mapexport.os.linux(os_type, targetFolder)
 
 	local _EXECUTE = os.execute
 	
@@ -140,7 +140,7 @@ function resource_export.os.linux(os_type, targetFolder)
 	----
 	
 	local folderCount = 0	-- count folders for later output
-	local folderList, fileList = resource_export.captureConsoleOutput(os_type, targetFolder)
+	local folderList, fileList = mapexport.captureConsoleOutput(os_type, targetFolder)
 	targetFolder = "mapexport_" .. targetFolder
 	
 	print("Starting to copy files:")
@@ -162,4 +162,4 @@ function resource_export.os.linux(os_type, targetFolder)
 	print("©200200000Copied a total of " .. folderCount .. " Folder(s) and " .. #fileList .. " File(s)!")
 end
 
-resource_export.os.mac = resource_export.os.linux
+mapexport.os.mac = mapexport.os.linux

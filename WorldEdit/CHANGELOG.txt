@@ -1,0 +1,39 @@
+Version 0.4
+[ADDED] !we unstuck | by MikuAuahDark (user:53360)
+[FIXED] Now explicitly removing images created by players when they leave
+
+Version 0.3a
+[FIXED] worldedit.data.degreeToDirection offsets, down-left was recognized as up-left
+
+Version 0.3 - 17.04.2014
+[ADDED] Graphical region selection (uuuh, fancy!)
+[ADDED] !we expand <amount> [direction] - enlarges the selection in [direction]
+[ADDED] !we contract <amount> [direction] (equals expand with negative <amount>)
+[ADDED] !we shift <amount> [direction] - moves selection by <amount> tiles in [direction]
+[ADDED] !we coords (!we c) - shows you your current coordinates
+[FIXED] Chat string parsing (again)
+[FIXED] TileToPixel calculation, which I broke in the last version
+[CHANGED] !we hollow replaces the center with tile 0 when argument #3 is not given
+[REMOVED] Debug output when setting position to cursor
+[REMOVED] Initializing useless data on join (pos[1] and pos[2])
+
+Known bugs:
+:o: replace and walls commands have no error message when toTile (argument #3) is missing
+:o: It is possible to expand/shift a region outside the map boundaries
+:o: Tile validation doesn't depend on current maps tiles
+
+14.04.2014
+[ADDED] !we walls <tile>
+[ADDED] !we hollow <tile>
+[ADDED] !we regen
+[ADDED] !we pos now accepts cursor position (!we pos <1|2> cur)
+[FIXED] PixelToTile and tileToPixel calculations (+1 too much)
+[FIXED] Validation of coordinates
+[CHANGED] Updated reqcld2 function to support mode 4
+[REMOVED] A few console debug outputs
+
+13.04.2014
+[ADDED] !we limit works now
+[ADDED] !we replace <fromTile> [toTile]
+[ADDED] Each region modifying operations shows changed blocks
+[FIXED] String parsings inside commands

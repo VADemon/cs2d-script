@@ -1,0 +1,17 @@
+Welcome to the Permissions Help File!
+
+
+- What is the Permissions plugin? -
+Permissions is a highly customizable plugin that allows you to give rights to certain people or groups.
+You don't have to edit settings of an each new plugin/script to allow all of it's features only to a couple of persons. With Permissions *you* decide which features a player is able to use!
+
+- How it works -
+All you need is Permissions and another script that uses Permissions. The developer of this script tells you the corresponding permission node for every command.
+So, for example, to allow a player/group the usage of command "!ban" you have to add the permission node "adminScriptName.command.ban"
+If the player doesn't have that permission node he won't be able to use this command because he hasn't the permission to do that. It's actually pretty simple!
+
+Additional info will be added while developing the plugin.
+
+Sincerely, VADemon
+
+15.06.2012  ~  edited on 28.06.2014

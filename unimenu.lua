@@ -1,100 +1,130 @@
-menus = {
-	[1] = {
-		title = "Weapon Shop",
-		items = {
-			{"AK-47","$2500",function(id)
-				if player(id,"money")>=2500 then
-					parse("equip "..id.." 30")
-					parse("setmoney "..id.." "..player(id,"money")-2500)
-				else
-					msg2(id,"You don't have enough money!") 
-				end
-			end},
-			{"AWP","$3000",function(id)
-				if player(id,"money")>=3000 then
-					parse("equip "..id.." 35")
-					parse("setmoney "..id.." "..player(id,"money")-3000)
-				else
-					msg2(id,"You don't have enough money!")
-				end
-			end},
-			{"M4A1","$2600",function(id)
-				if player(id,"money")>=2600 then
-					parse("equip "..id.." 32")
-					parse("setmoney "..id.." "..player(id,"money")-2600)
-				else
-					msg2(id,"You don't have enough money!")
-				end
-			end}
-		},
-	}
-}
+unimenu_menus = {}
+unimenu_menuPageStrings = {{}}
+unimenu_lastOpenedMenu = {}
 
-spages={{}}
-pmenu={}
-
-function unimenu(id,construct,m,p)
-	if not spages[id] then spages[id]={} end
-	if m~="current" then
+function unimenu(id, construct, targetMenu, page)
+	if not unimenu_menuPageStrings[id] then unimenu_menuPageStrings[id] = {} end
+	
+	if targetMenu ~= "current" then
 		if construct then
-			local custom
-			if type(m)=="table" then
-				custom=true
+			
+			if not unimenu_menus[ targetMenu ] then print("[UniMenu] There's no menu with internal ID '".. tostring(targetMenu) .."'!") return false end
+			
+			local workMenu, workMenuItems	-- the menu we're will work with			
+			if type(targetMenu) == "table" then
+				workMenu, workMenuItems = targetMenu, targetMenu.items	
 			else
-				custom=false
+				workMenu, workMenuItems = unimenu_menus[ targetMenu ], unimenu_menus[ targetMenu ].items
 			end
-			pmenu[id]=m
-			local paget
-			if not custom then
-				paget=math.ceil(#menus[m].items/7)
-			else
-				paget=math.ceil(#m.items/7)
-			end
-			for i=1,paget do
-				if not custom then
-					spages[id][i]=menus[m].title.." Page "..i.."@b,"
-				else
-					spages[id][i]=m.title.." Page "..i.."@b,"
-				end
-				for ii=1,7 do
-					local sid = ii+(7*(i-1))
-					if not custom then
-						if menus[m].items[sid] then
-							spages[id][i]=spages[id][i]..menus[m].items[sid][1].."|"..menus[m].items[sid][2]..","
+			
+			unimenu_lastOpenedMenu[id] = targetMenu
+			local paget = math.ceil(#workMenuItems/7)
+			local menuMode = string.match(workMenu.title, "(@[ib])$") or ""	-- if mode string not found then don't set it
+
+			for i = 1, paget do
+			
+				unimenu_menuPageStrings[id][i] = string.gsub(workMenu.title, "(@[ib])$", "") .." - Page ".. i .. menuMode .. "," -- replace the menuMode suffix in title with ""
+				
+				for ii = 1, 7 do
+					local sid = ii+(7*(i-1))	-- the current button we're working on
+					local menuButtonName, menuButtonDesc
+					
+					if workMenuItems[sid] then
+						if type(workMenuItems[sid][1]) == "string" then	-- if it's a string
+							menuButtonName = workMenuItems[sid][1]	-- use it
 						else
-							spages[id][i]=spages[id][i]..","
+							menuButtonName = workMenuItems[sid][1](id, workMenuItems[sid][3])	-- if not, it should return the Button name
 						end
+						if type(workMenuItems[sid][2]) == "string" then
+							menuButtonDesc = workMenuItems[sid][2]
+						else
+							menuButtonDesc = workMenuItems[sid][2](id, workMenuItems[sid][3])
+						end
+						unimenu_menuPageStrings[id][i] = unimenu_menuPageStrings[id][i] .. menuButtonName .."|".. menuButtonDesc ..","
 					else
-						if m.items[sid] then
-							spages[id][i]=spages[id][i]..m.items[sid][1].."|"..m.items[sid][2]..","
-						else
-							spages[id][i]=spages[id][i]..","
-						end
+						unimenu_menuPageStrings[id][i] = unimenu_menuPageStrings[id][i] ..","
 					end
 				end
-				if i<paget then spages[id][i]=spages[id][i].."Next" end
-				if i>1 then spages[id][i]=spages[id][i]..",Back" end
+				
+				if i < paget then 	unimenu_menuPageStrings[id][i] = unimenu_menuPageStrings[id][i] .."Next" end
+				if i > 1 then 		unimenu_menuPageStrings[id][i] = unimenu_menuPageStrings[id][i] ..",Back" end
 			end
 		end
 	end
-	menu(id,spages[id][p])
+	
+	menu(id, unimenu_menuPageStrings[id][page])
 end
 
 addhook("menu","unimenuhook")
-function unimenuhook(id,menu,sel)
-	local p=tonumber(menu:sub(-1))
-	if sel<8 and sel>0 then
-		local s=sel+(7*(p-1))
-		if type(pmenu[id])=="table" then
-			pmenu[id].items[s][3](id)
+function unimenuhook(id, menu, sel)
+	local p = tonumber(menu:sub(-1))
+	
+	if sel < 8 and sel > 0 then
+		local s = sel + (7 * (p - 1))
+		if type(unimenu_lastOpenedMenu[id]) == "table" then
+			unimenu_lastOpenedMenu[id].items[s][4](id, unimenu_lastOpenedMenu[id].items[3], menu, sel)
 		else
-			menus[pmenu[id]].items[s][3](id)
+			unimenu_menus[ unimenu_lastOpenedMenu[id] ].items[s][4](id, unimenu_menus[ unimenu_lastOpenedMenu[id] ].items[s][3], menu, sel)
 		end
 	else
-		if sel==8 then
-			unimenu(id,true,"current",p+1)
-		elseif sel==9 then
-			unimenu(id,true,"current",p-1)
+		if sel == 8 then
+			unimenu(id, true, "current", p+1)
+		elseif sel == 9 then
+			unimenu(id, true, "current", p-1)
 		end
 	end
+end
+
+-- @param umid: Internal identifier, which you will need to open that menu. If you don't specify it, you have to save the returned value and use it instead
+-- @param title: Menu's title, may end with @b and @i
+-- @param items: (optional) put the ready UniMenu-compatible table with buttons here
+-- @return	If argument umid was specified then it equals umid, if umid is nil then the return is a number value
+function unimenu_newMenu(umid, title, items)
+	if not umid then 
+		umid = #unimenu_menus + 1
+	end
+	
+	if not unimenu_menus[ umid ] then
+		unimenu_menus[ umid ] = {
+			["title"] = title,
+			["items"] = {}
+		}
+		
+		if items and type(items) == "table" then
+			unimenu_menus[ umid ]["items"] = items
+		else
+			print("[UniMenu] Could not create a new menu, type of argument 'items' is invalid, must be a table!")
+		end
+		
+		return umid
+	else
+		print("[UniMenu] Could not create a new menu, menu with umid ".. umid .." already exists!")
+	end
+	
+	return false
+end
+
+-- @param umid: Internal identifier, which you need to open a menu.
+-- @param buttonName: (string or function) button text on the left side
+-- @param buttonDesc: (string or function) button description, grey text on the right side
+-- @param data: (table or nil) This table will be passed as an argument to the func function
+-- @param func: function which will be called when the button is pressed
+function unimenu_addButton(umid, buttonName, buttonDesc, data, func)
+	if umid and unimenu_menus[ umid ] then
+		local newPointer = #unimenu_menus[ umid ].items + 1
+		data = data or {}
+		
+		if (type(buttonName) ~= "string" and type(buttonName) ~= "function") or (type(buttonDesc) ~= "string" and type(buttonDesc) ~= "function") or type(func) ~= "function" then
+			print("[UniMenu] Could not add a button to menu, one or more button descriptors are invalid!")
+			return false
+		end
+		
+		unimenu_menus[ umid ].items[ newPointer ] = {buttonName, buttonDesc, data, func}
+		
+		return true
+	else
+		print("[UniMenu] Could not add a button to menu, umid was not specified or is invalid!")
+	end
+	
+	return false
 end

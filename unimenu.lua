@@ -126,10 +126,10 @@ function unimenu_newMenu(umid, title, items)
 			["items"] = {}
 		}
 		
-		if items and type(items) == "table" then
+		if type(items) ~= "nil" and type(items) == "table" then
 			unimenu_menus[ umid ]["items"] = items
 		else
-			print("[UniMenu] Could not create a new menu, type of argument 'items' is invalid, must be a table!")
+			print("[UniMenu] Could not create a new menu (" .. umid .."), type of argument 'items' is invalid, must be a table!")
 		end
 		
 		return umid

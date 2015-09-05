@@ -71,34 +71,34 @@ end
 
 addhook("menu","unimenuhook")
 function unimenuhook(id, menu, sel)
-	local p = tonumber(menu:sub(-1))
+	local page = tonumber(menu:sub(-1))
 	
 	if sel < 8 and sel > 0 then
-		local s = sel + (7 * (p - 1))
+		local sid = sel + (7 * (page - 1))
 
 		if type(unimenu_lastOpenedMenu[id]) == "table" then
 			local buttonData = unimenu_lastOpenedMenu[id].items[3]
 			
 			if type(buttonData) == "function" then	-- if data is a function, then we have a cached/correct version of it:
-				buttonData = unimenu_tempData[id][s]	-- s is same as sid
+				buttonData = unimenu_tempData[id][sid]	-- s is same as sid
 			end
 			
-			unimenu_lastOpenedMenu[id].items[s][4](id, buttonData, menu, sel)
+			unimenu_lastOpenedMenu[id].items[sid][4](id, buttonData, menu, sel)
 		else
 		
-			local buttonData = unimenu_menus[ unimenu_lastOpenedMenu[id] ].items[s][3]
+			local buttonData = unimenu_menus[ unimenu_lastOpenedMenu[id] ].items[sid][3]
 			
 			if type(buttonData) == "function" then	-- if data is a function, then we have a cached/correct version of it:
-				buttonData = unimenu_tempData[id][s]	-- s is same as sid
+				buttonData = unimenu_tempData[id][sid]	-- s is same as sid
 			end
 			
-			unimenu_menus[ unimenu_lastOpenedMenu[id] ].items[s][4](id, buttonData, menu, sel)
+			unimenu_menus[ unimenu_lastOpenedMenu[id] ].items[sid][4](id, buttonData, menu, sel)
 		end
 	else
 		if sel == 8 then
-			unimenu(id, true, "current", p+1)
+			unimenu(id, true, "current", page+1)
 		elseif sel == 9 then
-			unimenu(id, true, "current", p-1)
+			unimenu(id, true, "current", page-1)
 		end
 	end
 end
@@ -126,9 +126,9 @@ function unimenu_newMenu(umid, title, items)
 			["items"] = {}
 		}
 		
-		if type(items) ~= "nil" and type(items) == "table" then
+		if type(items) == "table" then
 			unimenu_menus[ umid ]["items"] = items
-		else
+		elseif type(items) ~= "nil" then
 			print("[UniMenu] Could not create a new menu (" .. umid .."), type of argument 'items' is invalid, must be a table!")
 		end
 		

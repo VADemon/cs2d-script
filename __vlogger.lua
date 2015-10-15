@@ -39,7 +39,7 @@ function vlogging.say(id, txt)
 		local viplevel = rp_vip and rp_vip[id] or "nothing"
 		local adminlevel = rp_Adminlevel and rp_Adminlevel[id] or "nothing"
 		
-		vlogging.log( vlogging.getPlayerInfo(id) .. "said: ".. txt .." | RP Level: VIP(".. viplevel ..") ADMIN(".. adminlevel ..")")
+		vlogging.log( vlogging.getPlayerInfo(id) .. "said: ".. txt .."\t|\tRP Level: VIP(".. viplevel ..") ADMIN(".. adminlevel ..")")
 	else
 		vlogging.log( vlogging.getPlayerInfo(id) .. "said: ".. txt)
 	end
@@ -47,7 +47,16 @@ end
 
 addhook("join", "vlogging.join")
 function vlogging.join(id)
-	vlogging.log( vlogging.getPlayerInfo(id) .. "joined! Port: ".. player(id, "port") .. " Sprayname: ".. player(id, "sprayname") .." Spraycolor: ".. player(id, "spraycolor"))
+	vlogging.log( vlogging.getPlayerInfo(id) .. "joined! Port: ".. player(id, "port"))
+	
+	timer(15000, "vlogging.join_delayed", tostring(id))
+end
+
+-- some information like spraycolor is not available instantly, player has to load the map first
+function vlogging.join_delayed(id)
+	id = tonumber(id)
+	
+	vlogging.log( vlogging.getPlayerInfo(id) .. " join info: Sprayname: ".. player(id, "sprayname") .." Spraycolor: ".. player(id, "spraycolor"))
 end
 
 addhook("leave", "vlogging.leave")

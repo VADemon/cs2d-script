@@ -385,7 +385,7 @@ function TMW.say(id, text)
 		
 		local from, to, targetID = text:find(" ?(%d+)", 5)	-- returns 3 values: from, to, string
 		targetID = tonumber(targetID)
-		print(targetID, text:find(" ?(%d+)", 5))
+		-- Improved Print Script required: print(targetID, text:find(" ?(%d+)", 5))
 		if not targetID then	-- equip himself
 		
 			if player(id, "health") ~= 0 then

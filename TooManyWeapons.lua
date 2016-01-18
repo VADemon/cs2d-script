@@ -484,7 +484,7 @@ function TMW.equipUnequipable(id, itemID)
 		end
 		
 		minX, maxX = minX - 1, maxX - 1
-		mixY, maxY = minY - 1, maxY - 1
+		minY, maxY = minY - 1, maxY - 1
 	until maxX >= 10
 	
 	return false

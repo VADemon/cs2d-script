@@ -6,6 +6,7 @@ unimenu_tempData = {}
 function unimenu(id, construct, targetMenu, page)
 	if not unimenu_menuPageStrings[id] then unimenu_menuPageStrings[id] = {} end
 	if not unimenu_tempData[id] then unimenu_tempData[id] = {} end
+	if not page then page = 1 end
 	
 	if targetMenu ~= "current" then
 		if construct then

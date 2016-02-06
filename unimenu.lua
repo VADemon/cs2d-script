@@ -12,7 +12,7 @@ function unimenu(id, construct, targetMenu, page)
 			
 			if not unimenu_menus[ targetMenu ] then print("[UniMenu] There's no menu with internal ID '".. tostring(targetMenu) .."'!") return false end
 			
-			local workMenu, workMenuItems	-- the menu we're will work with			
+			local workMenu, workMenuItems	-- the menu we will work with
 			if type(targetMenu) == "table" then
 				workMenu, workMenuItems = targetMenu, targetMenu.items	
 			else
@@ -113,14 +113,15 @@ end
 
 -- @param umid: Internal identifier, which you will need to open that menu. If you don't specify it, you have to save the returned value and use it instead
 -- @param title: Menu's title, may end with @b and @i
--- @param items: (optional) put the ready UniMenu-compatible table with buttons here
+-- @param items: (optional) put the ready UniMenu-compatible table with buttons here or NIL if you want to skip this argument
+-- @param overwrite: (optional), boolean: TRUE if you want to overwrite a (possibly) existing menu
 -- @return	If argument umid was specified then it equals umid, if umid is nil then the return is a number value
-function unimenu_newMenu(umid, title, items)
+function unimenu_newMenu(umid, title, items, overwrite)
 	if not umid then 
 		umid = #unimenu_menus + 1
 	end
 	
-	if not unimenu_menus[ umid ] then
+	if not unimenu_menus[ umid ] or overwrite then
 		unimenu_menus[ umid ] = {
 			["title"] = title,
 			["items"] = {}
@@ -138,6 +139,11 @@ function unimenu_newMenu(umid, title, items)
 	end
 	
 	return false
+end
+
+-- Wrapper for unimenu_newMenu, but Overwrite flag is always set
+function unimenu_replaceMenu(umid, title, items)
+	unimenu_newMenu(umid, title, items, true)
 end
 
 -- @param umid: Internal identifier, which you need to open a menu.

@@ -19,7 +19,7 @@ crosshairs.data = {
 function crosshairs.isfriendlyneutral(team1, team2)
 	local product = team1 * team2
 	--if product ~= 3 and product ~= 2 then
-	if game("sv_gamemode")~= 1 and (product < 2 or product > 3) then	-- is not deathmatch
+	if game("sv_gamemode")~= "1" and (product < 2 or product > 3) then	-- is not deathmatch
 		return true
 	end
 end
@@ -27,7 +27,7 @@ end
 function crosshairs.isfriendly(team1, team2)
 	local product = team1 * team2
 	--if product ~= 3 and product ~= 2 then
-	if game("sv_gamemode")~= 1 and (product == 1 or product > 3) then	-- is not deathmatch
+	if game("sv_gamemode")~= "1" and (product == 1 or product > 3) then	-- is not deathmatch
 		return true
 	end
 end

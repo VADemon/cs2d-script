@@ -110,7 +110,7 @@ BGRCachedFrame = 0
 BGRNewPixels = 0
 BGRBatch = {}	-- command batch cache. e.g. "settile 1 1 240;settile 1 2 235;..."
 
-BGRRatelimit = 820	-- don't draw more than N pixels at once
+BGRRatelimit = 800	-- don't draw more than N pixels at once
 function drawBGRPixel(x, y, bgr, biWidth, biHeight)
 	local tileid = tilesetPalette[bgr] or "255"
 	BGRCallsFrame = BGRCallsFrame+1

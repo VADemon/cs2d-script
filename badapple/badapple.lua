@@ -485,12 +485,13 @@ drawSequenceTimeStart = 10^9
 drawSequenceTimeStartFrame = 10^9
 drawSequenceTimeEnd = 10^9
 drawSequenceTimeEndFrame = 10^9
-function drawSequence(name, num)
+function drawSequence(name, num, frameIter)
 	name = name or IMAGES_PATH
 	if num then
 		drawSequenceLast = num
 	end
 	num = num or drawSequenceLast
+	frameIter = frameIter or 1
 	local path = string.format(name, num)
 	
 	print("©130030200Seq: drawing frame ".. num)
@@ -511,7 +512,7 @@ function drawSequence(name, num)
 		drawSequenceStatus = true	-- run this function once more
 	end
 	
-	if not status or num % 100 == 0 then -- drawFrame returned false, should have finished
+	if not status then --or num % 100 == 0 then -- drawFrame returned false, should have finished
 		
 		apple_startOtherHooks()
 		
@@ -533,5 +534,5 @@ function drawSequence(name, num)
 
 	end
 	
-	drawSequenceLast = 1 + drawSequenceLast
+	drawSequenceLast = frameIter + drawSequenceLast
 end

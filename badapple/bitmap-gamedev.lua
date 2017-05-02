@@ -108,7 +108,7 @@ BGRCallsFrame = 0
 BGRCachedFrame = 0
 
 BGRNewPixels = 0
-BGRBatch = ""	-- command batch cache. e.g. "settile 1 1 240;settile 1 2 235;..."
+BGRBatch = {}	-- command batch cache. e.g. "settile 1 1 240;settile 1 2 235;..."
 
 BGRRatelimit = 820	-- don't draw more than N pixels at once
 function drawBGRPixel(x, y, bgr, biWidth, biHeight)
@@ -119,7 +119,7 @@ function drawBGRPixel(x, y, bgr, biWidth, biHeight)
 		tilesetLastFrame[x][y] = tileid	-- update cache entry
 		--parse("settile ".. x .." ".. y .." ".. tileid)
 		BGRNewPixels = 1 + BGRNewPixels
-		BGRBatch = BGRBatch .. "settile ".. x .." ".. y .." ".. tileid ..";"
+		BGRBatch[#BGRBatch + 1] = "settile ".. x .." ".. y .." ".. tileid
 	else
 		--msg("cached")
 		BGRCachedFrame = BGRCachedFrame+1
@@ -141,8 +141,8 @@ function drawBGRPixel(x, y, bgr, biWidth, biHeight)
 		if (BGRNewPixels > BGRRatelimit) then
 			msg("Bitrate exceeded! ".. BGRNewPixels)
 		end
-		parse(BGRBatch, 0)	-- noticable performance improvement. drawing calls are at least 3x faster
-		BGRBatch = ""
+		parse(table.concat(BGRBatch, ";"), 0)	-- noticable performance improvement. drawing calls are at least 3x faster
+		BGRBatch = {}
 		BGRNewPixels = 0
 		coroutine.yield()
 	end

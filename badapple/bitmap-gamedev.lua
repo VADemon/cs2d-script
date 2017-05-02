@@ -110,7 +110,7 @@ BGRCachedFrame = 0
 BGRNewPixels = 0
 BGRBatch = ""	-- command batch cache. e.g. "settile 1 1 240;settile 1 2 235;..."
 
-BGRRatelimit = 800	-- don't draw more than N pixels at once
+BGRRatelimit = 820	-- don't draw more than N pixels at once
 function drawBGRPixel(x, y, bgr, biWidth, biHeight)
 	local tileid = tilesetPalette[bgr] or "255"
 	BGRCallsFrame = BGRCallsFrame+1
@@ -136,7 +136,7 @@ function drawBGRPixel(x, y, bgr, biWidth, biHeight)
 	-- variable draw rate for speed
 	-- or constant draw rate for synchronisation
 	
-	if (BGRNewPixels > BGRRatelimit) or (biWidth-1 == x and y%6==0) then	-- (800 draw calls) or (Writeout one line (X) * Y times)
+	if (BGRNewPixels > BGRRatelimit) or (biWidth-1 == x and y%8==0) then	-- (800 draw calls) or (Writeout one line (X) * Y times)
 		
 		if (BGRNewPixels > BGRRatelimit) then
 			msg("Bitrate exceeded! ".. BGRNewPixels)

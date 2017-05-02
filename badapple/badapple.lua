@@ -487,9 +487,9 @@ function drawSequence(name, num)
 		drawSequenceTimeEndFrame = num
 		
 		print("©220060120Seq time start: ".. drawSequenceTimeStart)
-		print("©220060120Seq time end  : ".. drawSequenceTimeEnd)
-		print("©220060120Seq time diff : ".. drawSequenceTimeEnd - drawSequenceTimeStart)
-		print("©220060120Frames drawn  : ".. drawSequenceTimeEndFrame - drawSequenceTimeStartFrame .. " Frames: ".. drawSequenceTimeStartFrame .."->".. drawSequenceTimeEndFrame)
+		print("©220060120Seq time end : ".. drawSequenceTimeEnd)
+		print("©220060120Seq time diff  : ".. drawSequenceTimeEnd - drawSequenceTimeStart)
+		print("©220060120Frames drawn: ".. drawSequenceTimeEndFrame - drawSequenceTimeStartFrame .. " Frames: ".. drawSequenceTimeStartFrame .."->".. drawSequenceTimeEndFrame ..", ".. (drawSequenceTimeEndFrame - drawSequenceTimeStartFrame) / (drawSequenceTimeEnd - drawSequenceTimeStart) .." FPS")
 		
 		msg("drawFrame returned false, playback finished")
 		freehook("always", "drawSequenceHook")

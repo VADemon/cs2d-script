@@ -37,6 +37,28 @@ function reqCurpos()
 	end
 end
 
+-- disables unnecessary hooks for means of faster playback
+function apple_stopOtherHooks()
+	print("!!! HIGH PERF MODE!!!")
+	
+	_PRINT = print
+	print = function () end
+	
+	freehook("always", "reqCurpos")
+	parse("debug 0")
+	parse("debuglua 0")
+end
+
+function apple_startOtherHooks()
+	print = _PRINT
+	_PRINT=nil
+	
+	addhook("always", "reqCurpos")
+	parse("debuglua 1")
+	print("!!! NORMAL PERF MODE!!!")
+end
+
+
 --[[
 addhook("log", "apple_fps")
 function apple_fps(line)
@@ -162,7 +184,7 @@ function apple_setSpawnpos(id)
 		centerpos(id, screenx, screeny)
 		
 		drawFill(id*2+3, math.floor(((screenx-1) * 640)/32), math.floor(((screeny-1) * 480)/32), 20, 15)
-		drawText(id, math.floor(((screenx-1) * 640 + 160)/32), math.floor(((screeny-1) * 480 + 120)/32))
+		drawText(math.max(8, map("tilecount")-1), math.floor(((screenx-1) * 640 + 160)/32), math.floor(((screeny-1) * 480 + 120)/32))
 	end
 end
 
@@ -473,6 +495,9 @@ function drawSequence(name, num)
 		
 		-- is this the first run?
 		if drawSequenceStatus == false then
+			
+			apple_stopOtherHooks()
+			
 			drawSequenceTimeStart = os.clock()
 			drawSequenceTimeStartFrame = num + 1 -- because we didn't capture frametime of the first frame
 		end
@@ -482,6 +507,8 @@ function drawSequence(name, num)
 	end
 	
 	if not status or num % 100 == 0 then -- drawFrame returned false, should have finished
+		
+		apple_startOtherHooks()
 		
 		drawSequenceTimeEnd = os.clock()
 		drawSequenceTimeEndFrame = num

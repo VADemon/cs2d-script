@@ -37,8 +37,11 @@ function reqCurpos()
 	end
 end
 
+BADAPPLE_HIGH_PERF_ENABLED = false
 -- disables unnecessary hooks for means of faster playback
 function apple_stopOtherHooks()
+	if not BADAPPLE_HIGH_PERF_ENABLED then return end
+	
 	print("!!! HIGH PERF MODE!!!")
 	
 	_PRINT = print
@@ -50,6 +53,8 @@ function apple_stopOtherHooks()
 end
 
 function apple_startOtherHooks()
+	if not BADAPPLE_HIGH_PERF_ENABLED then return end
+	
 	print = _PRINT
 	_PRINT=nil
 	
@@ -183,8 +188,8 @@ function apple_setSpawnpos(id)
 		
 		centerpos(id, screenx, screeny)
 		
-		drawFill(id*2+3, math.floor(((screenx-1) * 640)/32), math.floor(((screeny-1) * 480)/32), 20, 15)
-		drawText(math.max(8, map("tilecount")-1), math.floor(((screenx-1) * 640 + 160)/32), math.floor(((screeny-1) * 480 + 120)/32))
+		drawFill(math.max(id*2+3, map("tilecount")-1), math.floor(((screenx-1) * 640)/32), math.floor(((screeny-1) * 480)/32), 20, 15)
+		drawText(id, math.floor(((screenx-1) * 640 + 160)/32), math.floor(((screeny-1) * 480 + 120)/32))
 	end
 end
 

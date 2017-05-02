@@ -136,12 +136,19 @@ function drawBGRPixel(x, y, bgr, biWidth, biHeight)
 	-- variable draw rate for speed
 	-- or constant draw rate for synchronisation
 	
-	if (BGRNewPixels > BGRRatelimit) or (biWidth-1 == x and y%8==0) then	-- (800 draw calls) or (Writeout one line (X) * Y times)
+	if (BGRNewPixels > BGRRatelimit) or (biWidth-1 == x and y%10==0) then	-- (800 draw calls) or (Writeout one line (X) * Y times)
 		
 		if (BGRNewPixels > BGRRatelimit) then
-			msg("Bitrate exceeded! ".. BGRNewPixels)
+			print("Bitrate exceeded! ".. BGRNewPixels)
 		end
+		
+		--local s = os.clock()
+		
 		parse(table.concat(BGRBatch, ";"), 0)	-- noticable performance improvement. drawing calls are at least 3x faster
+		
+		--local e = os.clock()
+		--print(e-s .. "s draw call time")	-- 4-12ms - parse() is the bottleneck
+		
 		BGRBatch = {}
 		BGRNewPixels = 0
 		coroutine.yield()

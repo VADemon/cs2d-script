@@ -5,7 +5,7 @@
 --vertical tile resolution:		15
 msg("Badapple.lua loaded")
 
-SCREENS_H, SCREENS_V = 4, 3	-- 5x5 games = 100x75 tiles/pixels
+SCREENS_H, SCREENS_V = 5, 5	-- 5x5 games = 100x75 tiles/pixels
 IMAGES_PATH = "badapple/ffmpeg/images/%04d.bmp"
 generateTileMapping("badapple/ffmpeg/rgb-palette24.bmp")
 
@@ -129,6 +129,22 @@ end
 
 addhook("parse", "apple_parse")
 function apple_parse(txt)
+	if txt == "invisible" or txt == "invis" then
+		local playerlist = player(0, "table")
+		for i = 1, #playerlist do
+			local id = playerlist[i]
+			parse("equip ".. id .." 84")
+		end
+	end
+	
+	if txt == "visible" then
+		local playerlist = player(0, "table")
+		for i = 1, #playerlist do
+			local id = playerlist[i]
+			parse("strip ".. id .." 84")
+		end
+	end
+
 	-- syntax: "seqstart <name or "nil"> <number>"
 	if txt:sub(1, 8) == "seqstart" then
 		local name, num = txt:match(" (.-) (%d+)")
@@ -160,6 +176,15 @@ function apple_parse(txt)
 		dofile("sys/lua/autorun/badapple-delayed-start.lua")
 	end
 	
+	if txt == "greenlight" then
+		drawText("VOTE FOR", 1, 1, 5)
+		drawText(" CS2D", 1, 8, 5)
+		drawText("  ON", 1, 15, 5)
+		drawText("GREEN", 1, 22, 5)
+		drawText("LIGHT", 20, 28, 5)
+		
+	end
+	
 	return 1
 end
 
@@ -188,8 +213,8 @@ function apple_setSpawnpos(id)
 		
 		centerpos(id, screenx, screeny)
 		
-		drawFill(math.max(id*2+3, map("tilecount")-1), math.floor(((screenx-1) * 640)/32), math.floor(((screeny-1) * 480)/32), 20, 15)
-		drawText(id, math.floor(((screenx-1) * 640 + 160)/32), math.floor(((screeny-1) * 480 + 120)/32))
+		--drawFill(math.floor(((screenx-1) * 640)/32), math.floor(((screeny-1) * 480)/32), 20, 15, id*2+3)
+		drawText(id, math.floor(((screenx-1) * 640 + 160)/32), math.floor(((screeny-1) * 480 + 120)/32), math.max(id*2+3, map("tilecount")-1))
 	end
 end
 
@@ -199,6 +224,14 @@ function apple_forcespawn(id)
 end
 
 figureList = {}
+figureList[" "] = { width = 5,
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0
+}
+
 figureList["1"] = { width = 5,
 0,0,1,0,0,
 0,0,1,0,0,
@@ -276,7 +309,119 @@ figureList["0"] = { width = 5,
 1,1,1,1,1,
 }
 
-function drawFigure(key, posx, posy)
+figureList["C"] = { width = 5,
+1,1,1,1,1,
+1,0,0,0,0,
+1,0,0,0,0,
+1,0,0,0,0,
+1,1,1,1,1,
+}
+
+figureList["D"] = { width = 5,
+1,1,1,1,0,
+1,0,0,0,1,
+1,0,0,0,1,
+1,0,0,0,1,
+1,1,1,1,0,
+}
+
+figureList["F"] = { width = 5,
+1,1,1,1,1,
+1,0,0,0,0,
+1,1,1,0,0,
+1,0,0,0,0,
+1,0,0,0,0,
+}
+
+figureList["H"] = { width = 5,
+1,0,0,0,1,
+1,0,0,0,1,
+1,1,1,1,1,
+1,0,0,0,1,
+1,0,0,0,1,
+}
+
+figureList["I"] = { width = 5,
+1,1,1,1,1,
+0,0,1,0,0,
+0,0,1,0,0,
+0,0,1,0,0,
+1,1,1,1,1,
+}
+
+figureList["G"] = { width = 5,
+1,1,1,1,1,
+1,0,0,0,0,
+1,0,0,1,1,
+1,0,0,0,1,
+1,1,1,1,1,
+}
+
+figureList["E"] = { width = 5,
+1,1,1,1,1,
+1,0,0,0,0,
+1,1,1,1,0,
+1,0,0,0,0,
+1,1,1,1,1,
+}
+
+figureList["L"] = { width = 5,
+1,0,0,0,0,
+1,0,0,0,0,
+1,0,0,0,0,
+1,0,0,0,0,
+1,1,1,1,1,
+}
+
+figureList["O"] = { width = 5,
+1,1,1,1,1,
+1,0,0,0,1,
+1,0,0,0,1,
+1,0,0,0,1,
+1,1,1,1,1,
+}
+
+figureList["R"] = { width = 5,
+1,1,1,1,1,
+1,0,0,0,1,
+1,1,1,1,1,
+1,0,0,1,0,
+1,0,0,0,1,
+}
+
+figureList["N"] = { width = 5,
+1,0,0,0,1,
+1,1,0,0,1,
+1,0,1,0,1,
+1,0,0,1,1,
+1,0,0,0,1,
+}
+
+figureList["V"] = { width = 5,
+1,0,0,0,1,
+1,0,0,0,1,
+1,0,0,0,1,
+0,1,0,1,0,
+0,0,1,0,0,
+}
+
+figureList["T"] = { width = 5,
+1,1,1,1,1,
+0,0,1,0,0,
+0,0,1,0,0,
+0,0,1,0,0,
+0,0,1,0,0,
+}
+
+figureList["S"] = { width = 5,
+1,1,1,1,1,
+1,0,0,0,0,
+1,1,1,1,1,
+0,0,0,0,1,
+1,1,1,1,1,
+}
+
+function drawFigure(key, posx, posy, tile)
 	if not posx then
 		print("TileDrawer: posx not specified, drawing at X=0")
 		posx = 0
@@ -284,6 +429,10 @@ function drawFigure(key, posx, posy)
 	if not posy then
 		print("TileDrawer: posy not specified, drawing at Y=0")
 		posy = 0
+	end
+	if not tile then
+		print("TileDrawer: tile not specified, drawing TILE=0")
+		tile = 0
 	end
 	
 	if figureList[key] then
@@ -297,7 +446,7 @@ function drawFigure(key, posx, posy)
 			if figureList[key][i] ~= 0 then
 				local tilex, tiley = posx + math.abs((i - 1) % width + 1), posy + math.ceil(i / width)
 				--msg("Drawing at: ".. tilex .."|".. tiley)
-				parse("settile ".. tilex .." ".. tiley .." 6")
+				parse("settile ".. tilex .." ".. tiley .." ".. tile)
 			end
 		end
 	else
@@ -314,9 +463,10 @@ function getFigureWidth(key)
 	end
 end
 
-function drawText(str, posx, posy)
+function drawText(str, posx, posy, tile)
 	local str = tostring(str)
 	local posx, posy = posx or 0, posy or 0
+	local tile = tile or 1
 	
 	local shiftx, shifty = 0, 0
 	
@@ -324,7 +474,7 @@ function drawText(str, posx, posy)
 		local char = str:sub(i,i)
 		
 		if figureList[char] then
-			drawFigure(char, posx + shiftx, posy + shifty)
+			drawFigure(char, posx + shiftx, posy + shifty, tile)
 			shiftx = shiftx + getFigureWidth(char) + 1
 		else
 			print("TileDrawer: drawText - char ".. tostring(char) .. " not found!")
@@ -332,7 +482,7 @@ function drawText(str, posx, posy)
 	end
 end
 
-function drawFill(tile, posx, posy, sizex, sizey)
+function drawFill(posx, posy, sizex, sizey, tile)
 	local tile = tile or 0
 	local posx, posy = posx or 0, posy or 0
 	local sizex, sizey = sizex or 3, sizey or 3
@@ -341,6 +491,12 @@ function drawFill(tile, posx, posy, sizex, sizey)
 		for y = 0, sizey-1 do
 			parse("settile ".. x+posx .." ".. y+posy .." ".. tile)
 		end
+	end
+end
+
+function drawTileset(posx, posy, offset)
+	for i = 0, map("tilecount") do
+		drawFill(posx, posy*(i+1), 3, 1, i+(offset or 0))
 	end
 end
 
@@ -367,7 +523,7 @@ function drawScreen()
 	local screenx = math.abs((screenid - 1) % SCREENS_H + 1) - 1
 	local screeny = math.ceil(screenid / SCREENS_H) - 1
 	
-	drawFill(screentile, screenx * 20, screeny * 15, 20, 15)
+	drawFill(screenx * 20, screeny * 15, 20, 15, screentile)
 end
 
 --addhook("ms100", "settileBench")
@@ -383,14 +539,14 @@ function settileBench()
 	
 	parse("hudtxt2 ".. playerAdminId .." ".. hudid+5 .." \"Tile=".. settileBenchLast ..", TileCount: ".. settileBenchRadius^2 .."\" 0 185 0")
 	--msg("SettileBench: Tile=".. settileBenchLast ..", TileCount: ".. settileBenchRadius^2)
-	drawFill(settileBenchLast, 0, 0, settileBenchRadius, settileBenchRadius)
+	drawFill(0, 0, settileBenchRadius, settileBenchRadius, settileBenchLast)
 end
 
 ------
 
 drawProceedCounter = 0
 function drawProceedHook()
-	if drawProceedCounter == 0 then
+	if drawProceedCounter == 1 then
 		drawProceed()
 		
 		drawProceedCounter = 0
@@ -401,7 +557,7 @@ end
 
 drawSequenceCounter = 0
 function drawSequenceHook()
-	if drawSequenceCounter == 5 then
+	if drawSequenceCounter == 2 then
 		drawSequence()
 		freehook("always", "drawSequenceHook")	-- execute once and then stop
 		-- if needed, the execution will be restarted from within drawProceed. #spaghettiLogic

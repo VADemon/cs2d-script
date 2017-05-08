@@ -136,7 +136,9 @@ function drawBGRPixel(x, y, bgr, biWidth, biHeight)
 	-- variable draw rate for speed
 	-- or constant draw rate for synchronisation
 	
-	if (BGRNewPixels > BGRRatelimit) or (biWidth-1 == x and y%10==0) then	-- (800 draw calls) or (Writeout one line (X) * Y times)
+	-- the bitmap's y == (-1-y+biHeight)	-- see DrawBitmap loop
+	-- therefore (-1-y+biHeight)%8==0 which equals (-y+biHeight)%8==1
+	if --[[(BGRNewPixels > BGRRatelimit) or]] (biWidth-1 == x and (-y+biHeight)%8==1) then	-- (800 draw calls) or (Writeout one line (X) * Y times)
 		
 		if (BGRNewPixels > BGRRatelimit) then
 			print("Bitrate exceeded! ".. BGRNewPixels)

@@ -72,10 +72,10 @@ function mapexport.captureConsoleOutput(os_type, targetFolder)
 	--	MANUALLY ADD THE .map and MAP's .lua
 	folderList[ "maps" .. separator ] = false	-- create "maps/" folder
 	folderList[ "gfx" .. separator .."tiles" .. separator ] = false	-- gfx/tiles/
-	fileList[1] = 'maps/' .. map("name") .. '.map'
-	fileList[2] = 'maps/' .. map("name") .. '.lua'
-	fileList[3] = 'maps/' .. map("name") .. '.txt'
-	fileList[4] = 'gfx/tiles/' .. map("tileset")
+	fileList[1] = 'maps' .. separator .. map("name") .. '.map'
+	fileList[2] = 'maps' .. separator .. map("name") .. '.lua'
+	fileList[3] = 'maps' .. separator .. map("name") .. '.txt'
+	fileList[4] = 'gfx' .. separator .. 'tiles' .. separator .. map("tileset")
 	
 	if os_type == "windows" then
 		fileList[1] = fileList[1]:gsub("/", "\\")
